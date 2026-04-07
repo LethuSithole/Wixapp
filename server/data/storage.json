@@ -1,0 +1,9 @@
+{
+  "demo-site": {
+    "forms": {
+      "contact": true,
+      "newsletter": true,
+      "demo": true
+    }
+  }
+}
