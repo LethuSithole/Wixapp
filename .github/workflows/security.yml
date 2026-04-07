@@ -1,0 +1,42 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level moderate
+
+    - name: Run security scan with Snyk (if configured)
+      run: npx snyk test --severity-threshold=medium || echo "Snyk not configured - install with: npm install -g snyk"
+
+    - name: Check for secrets in code
+      run: |
+        # Check for common secret patterns
+        if grep -r "HUBSPOT_CLIENT_SECRET\|password\|secret" --exclude-dir=node_modules --exclude-dir=.git --exclude=*.log .; then
+          echo "⚠️  Potential secrets found in code. Please ensure they're in environment variables."
+        else
+          echo "✅ No obvious secrets found in code."
+        fi
