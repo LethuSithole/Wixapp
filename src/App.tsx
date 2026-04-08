@@ -41,6 +41,7 @@ const sampleContact = {
 };
 
 function App() {
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
   const [isConnected, setIsConnected] = useState(false);
   const [hubspotAccount, setHubspotAccount] = useState("");
   const [selectedForms, setSelectedForms] = useState<Record<string, boolean>>({
@@ -53,6 +54,7 @@ function App() {
   const [syncLogs, setSyncLogs] = useState<SyncLog[]>([]);
   const [pending, setPending] = useState(false);
   const [showEmbedCode, setShowEmbedCode] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
 
   useEffect(() => {
     refreshStatus();
@@ -72,9 +74,21 @@ function App() {
 
   const refreshStatus = async () => {
     try {
-      const response = await fetch(`/api/hubspot/status?siteId=${SITE_ID}`);
-      const data = await response.json();
+      const response = await fetch(
+        `${API_BASE}/api/hubspot/status?siteId=${SITE_ID}`,
+      );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const message =
+          errorData?.error ||
+          "Unable to reach the backend status endpoint. Please start the HubSpot server.";
+        setBackendError(message);
+        addLog("warning", message);
+        return;
+      }
 
+      const data = await response.json();
+      setBackendError(null);
       setIsConnected(data.connected ?? false);
       setHubspotAccount(data.hubspotAccount ?? "HubSpot connected");
       setFieldMapping(data.mapping ?? defaultMapping);
@@ -82,20 +96,20 @@ function App() {
         data.forms ?? { contact: true, newsletter: false, demo: false },
       );
     } catch {
-      addLog(
-        "warning",
-        "Unable to read backend status. Start the HubSpot server first.",
-      );
+      const message =
+        "Unable to read backend status. Start the HubSpot server first.";
+      setBackendError(message);
+      addLog("warning", message);
     }
   };
 
   const connectHubSpot = () => {
-    window.location.href = `/api/hubspot/oauth/start?siteId=${SITE_ID}`;
+    window.location.href = `${API_BASE}/api/hubspot/oauth/start?siteId=${SITE_ID}`;
   };
 
   const disconnectHubSpot = async () => {
     try {
-      await fetch(`/api/hubspot/disconnect?siteId=${SITE_ID}`, {
+      await fetch(`${API_BASE}/api/hubspot/disconnect?siteId=${SITE_ID}`, {
         method: "POST",
       });
       setIsConnected(false);
@@ -108,7 +122,7 @@ function App() {
 
   const saveMapping = async (mapping: FieldMapping) => {
     try {
-      await fetch(`/api/settings/mapping?siteId=${SITE_ID}`, {
+      await fetch(`${API_BASE}/api/settings/mapping?siteId=${SITE_ID}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ siteId: SITE_ID, mapping }),
@@ -120,7 +134,7 @@ function App() {
 
   const saveForms = async (forms: Record<string, boolean>) => {
     try {
-      await fetch(`/api/settings/forms?siteId=${SITE_ID}`, {
+      await fetch(`${API_BASE}/api/settings/forms?siteId=${SITE_ID}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ siteId: SITE_ID, forms }),
@@ -166,7 +180,7 @@ function App() {
 
     setPending(true);
     try {
-      const response = await fetch("/api/sync/contact", {
+      const response = await fetch(`${API_BASE}/api/sync/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -211,6 +225,15 @@ function App() {
           </p>
         </div>
       </header>
+
+      {backendError ? (
+        <div className="alert error-banner">
+          <p>{backendError}</p>
+          <button className="secondary-button" onClick={refreshStatus}>
+            Retry connection
+          </button>
+        </div>
+      ) : null}
 
       <section className="dashboard-grid">
         <article className="card">

@@ -5,6 +5,7 @@
 ### Scenario 1: OAuth Connection Flow
 
 **Steps:**
+
 1. Start backend: `npm run dev:server`
 2. Start frontend: `npm run dev` (in another terminal)
 3. Visit `http://localhost:5173`
@@ -12,11 +13,13 @@
 5. Observe: OAuth redirect URL displays in address bar
 
 **Expected Result:**
+
 - Button changes to "Disconnect"
 - Connection status shows "Connected"
 - Activity log shows "HubSpot connection established"
 
 **Test with Real HubSpot:**
+
 - Complete the OAuth flow on HubSpot's auth screen
 - Grant requested scopes
 - Get redirected back with message: "✓ HubSpot Connected"
@@ -24,6 +27,7 @@
 ### Scenario 2: Field Mapping Configuration
 
 **Steps:**
+
 1. With HubSpot connected, navigate to "Sync settings" card
 2. In "Field mappings" section, change mapping:
    - Wix "Email" → HubSpot "company"
@@ -32,6 +36,7 @@
 4. Refresh page
 
 **Expected Result:**
+
 - Mappings persist after refresh
 - New mappings are restored from backend
 - Activity log shows no errors
@@ -39,12 +44,14 @@
 ### Scenario 3: Form Selection
 
 **Steps:**
+
 1. In "Sync settings" card, select/deselect forms:
    - Check: "Contact Us"
    - Uncheck: "Newsletter Signup"
 2. Click "Send sample submission"
 
 **Expected Result:**
+
 - Only checked forms are logged
 - Activity shows "Active sync: Contact Us"
 - Deselected forms don't appear in logs
@@ -52,18 +59,21 @@
 ### Scenario 4: Contact Sync (Wix → HubSpot)
 
 **Steps:**
+
 1. Verify HubSpot is connected
 2. Verify at least one form is selected
 3. In "Sync test" card, click "Send sample submission"
 4. Watch activity log update in real-time
 
 **Expected Result:**
+
 - Button shows "Syncing…" then resets
 - New log entry: "Sample contact synced to HubSpot for form contact"
 - Status: SUCCESS (green border)
 - Timestamp shows current time
 
 **With Real HubSpot:**
+
 - Log in to HubSpot
 - Go to Contacts
 - Find contact with email `jane.doe@example.com`
@@ -72,6 +82,7 @@
 ### Scenario 5: Form Submission with UTM Tracking
 
 **Steps:**
+
 1. Call backend endpoint directly:
    ```bash
    curl -X POST http://localhost:4000/api/sync/form-submission \
@@ -95,6 +106,7 @@
    ```
 
 **Expected Result:**
+
 ```json
 {
   "success": true,
@@ -104,6 +116,7 @@
 ```
 
 **Verify in HubSpot:**
+
 - Contact properties include:
   - `utm_source: "google"`
   - `utm_medium: "cpc"`
@@ -113,17 +126,20 @@
 ### Scenario 6: Activity Log & Sync History
 
 **Activity Log Display:**
+
 - Shows last 20 sync operations
 - Sorted newest first
 - Color coded by status: green (success), red (error), yellow (warning)
 - Each entry shows timestamp, status, and message
 
 **Endpoint Test:**
+
 ```bash
 curl http://localhost:4000/api/sync/activity?siteId=demo-site
 ```
 
 **Expected Response:**
+
 ```json
 {
   "activity": [
@@ -144,15 +160,18 @@ curl http://localhost:4000/api/sync/activity?siteId=demo-site
 ### Scenario 7: Loop Prevention
 
 **Test Deduplication Window:**
+
 1. Send sample submission
 2. Immediately (within 2 seconds) send another
 3. Check activity log
 
 **Expected Result:**
+
 - First sync succeeds
 - Second sync completes but note indicates "deduplicated" or skipped
 
 **Backend Test:**
+
 ```bash
 curl -X POST http://localhost:4000/api/webhook/hubspot/contact \
   -H "Content-Type: application/json" \
@@ -163,6 +182,7 @@ curl -X POST http://localhost:4000/api/webhook/hubspot/contact \
 ```
 
 **Expected Log:**
+
 ```
 [WEBHOOK] HubSpot contact event: contact.propertyChange
 [WEBHOOK] Skipping - caused by our own write (dedup window)
@@ -171,23 +191,27 @@ curl -X POST http://localhost:4000/api/webhook/hubspot/contact \
 ### Scenario 8: Disconnect & Reconnect
 
 **Steps:**
+
 1. Click "Disconnect HubSpot"
 2. Verify status changes to "Not connected"
 3. Activity log shows "HubSpot connection removed"
 4. Try to send sample submission
 
 **Expected Result:**
+
 - Error: "Please connect HubSpot before syncing contacts"
 - Can reconnect by clicking "Connect HubSpot" again
 
 ### Scenario 9: Backend Status Endpoint
 
 **Test:**
+
 ```bash
 curl http://localhost:4000/api/hubspot/status?siteId=demo-site
 ```
 
 **Expected Response (Connected):**
+
 ```json
 {
   "connected": true,
@@ -219,11 +243,13 @@ curl http://localhost:4000/api/hubspot/status?siteId=demo-site
 ## Test Credentials
 
 ### Demo Site ID
+
 ```
 SITE_ID = "demo-site"
 ```
 
 ### Sample Contact Data
+
 ```json
 {
   "email": "jane.doe@example.com",
@@ -235,6 +261,7 @@ SITE_ID = "demo-site"
 ```
 
 ### HubSpot OAuth Scopes Required
+
 - `crm.objects.contacts.read` - Read contacts from HubSpot
 - `crm.objects.contacts.write` - Create/update contacts
 - `forms` - Access HubSpot forms
@@ -243,22 +270,29 @@ SITE_ID = "demo-site"
 ## Troubleshooting
 
 ### Issue: "Cannot sync: HubSpot is not connected"
+
 **Solution:** Click "Connect HubSpot" and complete OAuth flow
 
 ### Issue: Backend returns 500 error
+
 **Check:**
+
 1. Backend is running: `npm run dev:server`
 2. `.env` has valid PORT (default 4000)
 3. Check terminal for error message
 
 ### Issue: OAuth flow redirects to error page
+
 **Check:**
+
 1. `HUBSPOT_CLIENT_ID` and `HUBSPOT_CLIENT_SECRET` are correct
 2. `HUBSPOT_REDIRECT_URI` matches app settings: `http://localhost:4000/api/hubspot/oauth/callback`
 3. Login to HubSpot account before initiating OAuth
 
 ### Issue: Form submission succeeds but contact not in HubSpot
+
 **Check:**
+
 1. Email field is mapped to `email` property (required)
 2. HubSpot contact was created with that email
 3. Check sync log timestamp vs contact creation time

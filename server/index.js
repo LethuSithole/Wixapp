@@ -27,6 +27,7 @@ const DEFAULT_MAPPING = {
 };
 const DEDUP_WINDOW_MS = 5000;
 const SYNC_LOG_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const TEST_MODE = process.env.HUBSPOT_TEST_MODE === "true";
 
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
@@ -273,12 +274,14 @@ app.get("/api/hubspot/status", async (req, res) => {
   try {
     const siteId = getSiteId(req);
     const state = await loadSiteState(siteId);
-    const connected = Boolean(state.oauth?.access_token);
+    const connected = TEST_MODE || Boolean(state.oauth?.access_token);
     res.json({
       connected,
       mapping: state.mapping ?? DEFAULT_MAPPING,
       forms: state.forms,
-      hubspotAccount: state.oauth?.hubspotAccount || null,
+      hubspotAccount: TEST_MODE
+        ? "Test Account"
+        : state.oauth?.hubspotAccount || null,
       expiresAt: state.oauth?.expires_at || null,
     });
   } catch (error) {
@@ -396,7 +399,7 @@ app.post("/api/sync/contact", async (req, res) => {
     const { payload, mapping } = req.body;
     const state = await loadSiteState(siteId);
 
-    if (!state.oauth?.access_token) {
+    if (!TEST_MODE && !state.oauth?.access_token) {
       return res
         .status(400)
         .json({ error: "HubSpot is not connected for this site." });
@@ -410,6 +413,16 @@ app.post("/api/sync/contact", async (req, res) => {
       return res
         .status(400)
         .json({ error: "Email is required in mapped contact data." });
+    }
+
+    if (TEST_MODE) {
+      // Simulate sync in test mode
+      await addSyncLogEntry(siteId, email, "test-contact-id", "wix", "create");
+      res.json({
+        success: true,
+        contact: { id: "test-contact-id", properties },
+      });
+      return;
     }
 
     const headers = await getAuthHeaders(siteId);

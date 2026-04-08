@@ -3,7 +3,7 @@ name: Dependency Updates
 on:
   schedule:
     # Run monthly on the 1st at 9 AM UTC
-    - cron: '0 9 1 * *'
+    - cron: "0 9 1 * *"
   workflow_dispatch:
 
 jobs:
@@ -11,42 +11,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Check for outdated dependencies
-      run: npm outdated
+      - name: Check for outdated dependencies
+        run: npm outdated
 
-    - name: Update dependencies (minor and patch versions only)
-      run: npm update
+      - name: Update dependencies (minor and patch versions only)
+        run: npm update
 
-    - name: Run build to ensure updates don't break anything
-      run: npm run build
+      - name: Run build to ensure updates don't break anything
+        run: npm run build
 
-    - name: Create Pull Request with dependency updates
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "chore: update dependencies"
-        title: "Automated Dependency Updates"
-        body: |
-          This PR updates dependencies to their latest compatible versions.
+      - name: Create Pull Request with dependency updates
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update dependencies"
+          title: "Automated Dependency Updates"
+          body: |
+            This PR updates dependencies to their latest compatible versions.
 
-          ## Changes
-          - Updated npm dependencies to latest minor/patch versions
-          - Verified build still passes after updates
+            ## Changes
+            - Updated npm dependencies to latest minor/patch versions
+            - Verified build still passes after updates
 
-          ## Testing
-          - [ ] Run `npm test` locally
-          - [ ] Test OAuth flow
-          - [ ] Test sync functionality
-        branch: automated/dependency-updates
+            ## Testing
+            - [ ] Run `npm test` locally
+            - [ ] Test OAuth flow
+            - [ ] Test sync functionality
+          branch: automated/dependency-updates

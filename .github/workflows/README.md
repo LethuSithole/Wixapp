@@ -5,6 +5,7 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
 ## Available Workflows
 
 ### 🔄 CI (`ci.yml`)
+
 - **Triggers**: Push/PR to main/master
 - **Purpose**: Build and test the application
 - **Features**:
@@ -14,12 +15,14 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - Backend health check
 
 ### 🚀 Deploy to Railway (`deploy-railway.yml`)
+
 - **Triggers**: Push to main/master or manual
 - **Purpose**: Deploy full-stack app to Railway
 - **Requirements**:
   - `RAILWAY_TOKEN` secret in GitHub
 
 ### 🌐 Deploy Frontend to Vercel (`deploy-vercel.yml`)
+
 - **Triggers**: Push to main/master or manual
 - **Purpose**: Deploy frontend to Vercel
 - **Requirements**:
@@ -28,6 +31,7 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - `VERCEL_PROJECT_ID` secret
 
 ### 🧹 Code Quality (`code-quality.yml`)
+
 - **Triggers**: Push/PR to main/master
 - **Purpose**: Lint and format code
 - **Features**:
@@ -36,6 +40,7 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - Prettier (when configured)
 
 ### 🔒 Security Checks (`security.yml`)
+
 - **Triggers**: Push/PR + weekly schedule
 - **Purpose**: Security scanning and vulnerability checks
 - **Features**:
@@ -44,6 +49,7 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - Secret detection in code
 
 ### 🧪 Test Suite (`test.yml`)
+
 - **Triggers**: Push/PR to main/master
 - **Purpose**: Run automated tests
 - **Features**:
@@ -52,6 +58,7 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - Codecov integration
 
 ### 📦 Dependency Updates (`dependency-updates.yml`)
+
 - **Triggers**: Monthly schedule or manual
 - **Purpose**: Keep dependencies updated
 - **Features**:
@@ -60,7 +67,8 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
   - Build verification
 
 ### 🏷️ Release (`release.yml`)
-- **Triggers**: Git tag push (v*.*.*)
+
+- **Triggers**: Git tag push (v*.*.\*)
 - **Purpose**: Create GitHub releases
 - **Features**:
   - Release creation
@@ -74,11 +82,13 @@ This directory contains GitHub Actions workflows for the Wix HubSpot Integration
 Add these secrets in your repository Settings → Secrets → Actions:
 
 #### For Railway Deployment:
+
 ```
 RAILWAY_TOKEN=your_railway_token
 ```
 
 #### For Vercel Deployment:
+
 ```
 VERCEL_TOKEN=your_vercel_token
 VERCEL_ORG_ID=your_org_id
@@ -86,6 +96,7 @@ VERCEL_PROJECT_ID=your_project_id
 ```
 
 #### For HubSpot Integration (if needed in CI):
+
 ```
 HUBSPOT_CLIENT_ID=your_client_id
 HUBSPOT_CLIENT_SECRET=your_client_secret
@@ -94,11 +105,13 @@ HUBSPOT_CLIENT_SECRET=your_client_secret
 ### 2. Getting Tokens
 
 #### Railway Token:
+
 1. Install Railway CLI: `npm install -g @railway/cli`
 2. Login: `railway login`
 3. Get token: `railway tokens create`
 
 #### Vercel Tokens:
+
 1. Go to Vercel Dashboard → Settings → Tokens
 2. Create a new token
 3. Get Org ID and Project ID from your project settings
@@ -124,17 +137,20 @@ Add these badges to your README:
 ## Troubleshooting
 
 ### Workflow Fails
+
 1. Check the Actions tab for detailed logs
 2. Verify all required secrets are set
 3. Ensure Node.js version compatibility
 4. Check for syntax errors in workflow files
 
 ### Deployment Issues
+
 1. Verify tokens are correct and have proper permissions
 2. Check deployment platform quotas/limits
 3. Ensure environment variables are set in deployment platform
 
 ### Dependency Updates
+
 - Reviews PRs created by dependency updates workflow
 - Test thoroughly before merging
 - Update version numbers in package.json if needed

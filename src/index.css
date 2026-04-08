@@ -185,6 +185,13 @@ select {
   color: #0f172a;
 }
 
+@media (max-width: 640px) {
+  select {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
 .embed-panel {
   display: grid;
   gap: 1rem;
@@ -272,12 +279,73 @@ select {
 }
 
 @media (max-width: 640px) {
+  .app-shell {
+    padding: 1rem 1rem 2rem;
+  }
+
+  .hero-panel {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-panel h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
   .card-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
 
   .card-header button {
     width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .primary-button,
+  .secondary-button {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mapping-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mapping-row label {
+    font-weight: 600;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkbox-item {
+    padding: 1rem;
+  }
+
+  .embed-placeholder {
+    min-height: 120px;
+  }
+
+  .code-block {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+
+  .log-entry {
+    padding: 0.75rem;
   }
 }
